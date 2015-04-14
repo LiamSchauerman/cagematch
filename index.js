@@ -1,61 +1,52 @@
 // vars
-var port = 6969;
+var port = process.env.PORT || 1337;
 	
 //  reqs
-var http = require("http");
-var express = require("express");
-var mongoose = require("mongoose");
+var http = require("http"),
+	express = require("express"),
+	bodyParser = require("body-parser"),
+	parseurl = require("parseurl")
+	bcrypt = require("bcrypt")
+	mongoose = require("mongoose"),
+	passport = require("passport"),
+	session = require('express-session'),
+	cookieParser = require('cookie-parser'),
+	db = require("./config/db.js");
+
+
 var app = express();
-
-//Server
-var server = http.createServer(app);
-
-app.get('/bro', function(request, response){
-	console.log(request.url);
-})
-
-server.listen(port, function(){
-	console.log('Listening on port ' + port);
-});
-
-//Serving Static Files
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
+
 
 //Mongo Intialization
 
-mongoose.connect('mongodb://localhost/firstCup');
+mongoose.connect(db.urlLocal); // connect to our database
 var db = mongoose.connection;
 db.on('error', function (err) {
 	console.log('connection error', err);
 });
 db.once('open', function () {
-	console.log('connected.');
-});
-
-//Define Schema
-var Schema = mongoose.Schema;
-var userSchema = new Schema({
-	name : String,
-});
-
-// Schema to DB Model
-var User = mongoose.model('User', userSchema);
-
-//Test DB Object
-var squid = new User({
-name : 'Squad',
-});
- 
- //Save DB Object
-squid.save(function (err, data) {
-if (err) console.log(err);
-else console.log('Saved : ', data );
+	console.log('mongo connected...');
 });
 
 
+require('./config/passport.js')(passport);
 
 
+app.use(session({ secret: 'mysecret' }));
+app.use(passport.initialize());
+app.use(passport.session());
 
+// logging all requests to console
+app.use(function(req,res,next){
+	console.log('serving '+req.method+' route '+req.url);
+	console.log(req.user ? req.user : "no user");
+	next();
+});
+require("./config/routes.js")(app, passport)
 
-
-
+app.listen(port, function(){
+	console.log('Listening on port ' + port);
+});
