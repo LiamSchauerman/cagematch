@@ -11,6 +11,7 @@ var http = require("http"),
 	passport = require("passport"),
 	session = require('express-session'),
 	cookieParser = require('cookie-parser'),
+	request = require('request'),
 	db = require("./config/db.js");
 
 

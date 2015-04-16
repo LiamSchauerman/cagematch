@@ -1,6 +1,13 @@
-console.log("main.js");
-var list = ["tom cruise", 'jim carrey', 'adam sandler', 'will ferrell', 'chris farley'];
+//get list of movies
+var list = [
+	{title: "tom cruise"}, 
+	{title:'jim carrey'}, 
+	{title:'adam sandler'}, 
+	{title:'will ferrell'}, 
+	{title:'chris farley'}];
 // var videos = new Videos(list);
-var app = new AppModel({list: list});
+var entries = new EntryCollection(list)
+var app = new AppModel({list: entries});
 var appView = new AppView({model: app});
+console.log("WUT")
 $('#container').html(appView.render());
