@@ -6,8 +6,14 @@
     </head>
 
     <body>
-      <div id='container'></div>
+      <div id='container'>
+      	<div id="matchupView">
+      		<div id="movieA"></div>
+	      	<div id="movieB"></div>
+      	</div>
+      </div>
       <button id="testButton">nic cage....</button>
+      <input id="query" placeholder="Actor's IMDB id">
     </body>
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
@@ -16,14 +22,18 @@
 
 
     <!-- include backbone views, models, and collections here -->
-    <!-- // <script src="backbone/models/VideoModel.js"></script> -->
-    <script src="backbone/views/EntryView.js"></script>
-    <script src="backbone/views/LibraryView.js"></script>
-    <script src="backbone/models/EntryModel.js"></script>
 
-    <script src="backbone/collections/EntryCollection.js"></script>
+    <!-- // <script src="backbone/models/EntryModel.js"></script> -->
+    <script src="backbone/models/MovieModel.js"></script>
+
     <script src="backbone/models/AppModel.js"></script>
+    <script src="backbone/Collections/EntryCollection.js"></script>
+    <!-- // <script src="backbone/Collections/MatchupCollection.js"></script> -->
+    <script src="backbone/views/MovieView.js"></script>
+    <!-- // <script src="backbone/views/MatchupView.js"></script> -->
+    <!-- // <script src="backbone/views/LibraryView.js"></script> -->
     <script src="backbone/views/AppView.js"></script>
+    
 
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/imdbScraper.js"></script>

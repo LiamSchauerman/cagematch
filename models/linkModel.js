@@ -1,13 +1,14 @@
 var mongoose = require("mongoose");
 
-var linkSchema = new mongoose.Schema({
-	url : String,
-	cups : Number,
-	title : String,
-	postedBy : String,
-	viewedBy : Array,
-	description : String,
-	submissionTime: { type : Date, default: Date.now },
+var matchupSchema = new mongoose.Schema({
+	titleA : String,
+	titleB : String,
+	aScorePre : Number,
+	aScorePost : Number,
+	bScorePre : Number,
+	bScorePost : Number,
+	winner : String,
+	timestamp: { type : Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Link', linkSchema);
+module.exports = mongoose.model('Matchup', matchupSchema);

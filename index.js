@@ -1,5 +1,5 @@
 // vars
-var port = process.env.PORT || 1337;
+var port = process.env.PORT || 4545;
 	
 //  reqs
 var http = require("http"),
