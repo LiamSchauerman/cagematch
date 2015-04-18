@@ -1,5 +1,8 @@
 var MovieView = Backbone.View.extend({
 	tagName: 'li',
+	initialize: function(){
+		// this.listenTo(this.model, 'change', this.render);
+	},
 	className: "movie col m3 yellow entryView",
 	template: _.template('<%= title %>'),
 	events: {

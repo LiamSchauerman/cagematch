@@ -1,26 +1,25 @@
 var imdbResponse = document.createElement('div');
 var titles = [];
-// $.get('/scrape?id=nm0000115', function(html){
-	// imdbResponse.innerHTML = html;
-	// var cagedWisdom = parseHTML(imdbResponse);
-	// console.log(cagedWisdom);
-
-// })
 $(document).on('ready', function(){
-	var cagedWisdom = [
-		{title: "cage movie 1",year:"1990",score:1000},
-		{title: "cage movie 2",year:"1530",score:1000},
-		{title: "cage movie 3",year:"1950",score:1000},
-		{title: "cage movie 1",year:"1990",score:1000},]
+$.get('/scrape?id=nm0000115', function(html){
+	imdbResponse.innerHTML = html;
+	var cagedWisdom = parseHTML(imdbResponse);
+	console.log(cagedWisdom);
+
+	// var cagedWisdom = [
+	// 	{title: "cage movie 1",year:"1990",score:1000},
+	// 	{title: "cage movie 2",year:"1530",score:1000},
+	// 	{title: "cage movie 3",year:"1950",score:1000},
+	// 	{title: "cage movie 1",year:"1990",score:1000},]
 	// cagedModels = _.map(cagedWisdom, function(obj){
 		// debugger;
 		// return new Movie(obj);
 	// })
 	var cageMovies = new EntryCollection(cagedWisdom);
 	var app = new AppModel({list: cageMovies});
-	debugger;
 	var appView = new AppView({model: app});
 	$('#container').html(appView.render());
+})
 	
 });
 

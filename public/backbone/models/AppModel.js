@@ -1,12 +1,13 @@
 var AppModel = Backbone.Model.extend({
 	initialize: function(params){
+		var self = this;
 		this.set('EntryList', params.list);
 		this.setMatchup();
 		console.log(this.attributes)
-		this.get('EntryList').on('matchup', function(){
+		this.get('EntryList').on('matchupWinner', function(){
 			console.log('matchup event');
-			this.setMatchup();
-			this.trigger('newMatchup');
+			self.setMatchup();
+			// self.trigger('newMatchup');
 		})
 	},
 	setMatchup: function(){
@@ -15,7 +16,8 @@ var AppModel = Backbone.Model.extend({
 		var movies = this.get("EntryList");
 		var indexA = Math.floor(Math.random()*movies.length);
 		var indexB = Math.floor(Math.random()*movies.length);
-		while(indexA === indexB){ //no duplicates
+		while(indexA === indexB){ 
+			//no duplicates
 			indexB = Math.floor(Math.random()*movies.length);
 		}
 		this.set("movieA", this.get('EntryList').at(indexA));

@@ -4,6 +4,6 @@ var Movie = Backbone.Model.extend({
 	},
 	win: function(){
 		// debugger;
-		this.trigger('matchup', this);
+		this.trigger('matchupWinner', this);
 	}
 })
