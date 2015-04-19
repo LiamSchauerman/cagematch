@@ -1,5 +1,6 @@
 //endpoints
 var User = require('../models/userModel.js');
+var Matchup = require('../models/matchupModel.js');
 var Movie = require('../models/movieModel.js');
 var ActorCollection = require('../models/actorCollectionModel.js');
 
@@ -101,58 +102,80 @@ module.exports = function(app, passport){
 	app.post('/scoreMatchup', function(req,res){
 		// calculate score change
 		// find mongoose model for winner and loser
-		// Person.findOne({ 'name.last': 'Ghost' }, 'name occupation', function (err, person) {
-		var declareWinner = function(winner, loser){
+		var declareWinner = function(){
+			var matchup = new Matchup();
+			matchup.actorId = req.body.actorId;
+			matchup.winner = req.body.winner;
+			matchup.loser = req.body.loser;
 			// access score
-			console.log(winner)
-			Movie.findOne({title: winner.title}, function(err, movie){
-				if(err) throw err;
-				console.log('movie find one');
-				console.log(movie);
+			var winnerScore;
+			var loserScore;
+
+			ActorCollection.findOne({
+			    imdbId: req.body.actorId,
+			},
+			{
+			    movies: { $elemMatch: {
+			        title: req.body.winner
+			    }},
+			}, function(err, winner){
+				if(err) throw err
+				console.log('winner',winner);
+				console.log('matchup')
+				matchup.winnerScorePre = winner.movies[0].score;
+				console.log(matchup.winnerScorePre)
+			    console.log("oooh hes tryin");
+				// res.status(200).end()
+				ActorCollection.findOne({
+				    imdbId: req.body.actorId,
+				},
+				{
+				    movies: { $elemMatch: {
+				        title: req.body.loser
+				    }},
+				}, function(err, loser){
+					if(err) throw err;
+					matchup.loserScorePre = loser.movies[0].score;
+					//calculate change in score
+					var winExp = 1/(1+Math.pow(10, ( matchup.loserScorePre - matchup.winnerScorePre )/400));
+					var K = 24;
+					matchup.winnerScorePost = matchup.winnerScorePre + K*(1-winExp);
+					var diff = Math.floor(matchup.winnerScorePost - matchup.winnerScorePre);
+					console.log(matchup.loserScorePre, matchup.winnerScorePre, diff)
+					matchup.loserScorePost = matchup.loserScorePre - diff;
+					console.log('searching',winner.movies[0]._id)
+					ActorCollection.update({
+						_id: winner._id, 
+						"movies._id": winner.movies[0]._id
+					}, 
+					{
+						$set: {
+							"movies.$.score" : matchup.winnerScorePost
+						}
+					}, function(err, numAffected) {
+						console.log(numAffected);
+						console.log('update uuuuu');
+						ActorCollection.update({
+							_id: loser._id, 
+							"movies._id": loser.movies[0]._id
+						}, 
+						{
+							$set: {
+								"movies.$.score" : matchup.loserScorePost
+							}
+						}, function(err, loserUpdate) {
+							console.log(loserUpdate);
+							console.log('update uuuuu')
+							console.log(matchup)
+							matchup.save(function(err, log){
+								res.status(200).end()
+							});
+						});
+					});
+				})
 			})
-			// var winExp = 1/(1+Math.pow(10, ( $scope.data[loser].score - $scope.data[winner].score )/400));
-			// var K = 24;
-			// var winScore = $scope.data[winner].score + K*(1-winExp);
-			// var diff = winScore - $scope.data[winner].score;
-			// console.log("diff", diff)
-			// $scope.diff = diff;
-			// $scope.data[winner].score += Math.floor(diff);
-			// $scope.data[loser].score -= Math.floor(diff);
-
-			// // syncing with firebase
-			// $scope.data.$save($scope.data[winner])
-			// $scope.data.$save($scope.data[loser])
-
-			// $scope.inPlay = MakeMatchup.twoRandomNumbers();
-			// $scope.toggleRankings = function() {
-			// 	console.log($scope.rankings)
-			// 	// show or hide the rankings div
-			// 	$scope.rankings === true ? $scope.rankings = false : $scope.rankings = true;
-			// }
 		};
-
-		// {'local.rooms': {$elemMatch: {name: req.body.username}}}
-		console.log(req.body.winner)
-		ActorCollection.findOne({
-		    imdbId: req.body.actorId,
-		},
-		{
-		    movies: { $elemMatch: {
-		        title: req.body.winner
-		    }},
-		}, function(err, collection){
-			console.log(collection);
-		    console.log("oooh hes tryin");
-			res.status(200).end()
-		    //collection.movies is my array
-		    // any )mongoose methods to query this array???
-		})
-		// ActorCollection
-		//     .findOne({"imdbId": req.body.actorId})
-		//     .elemMatch("movies", {"title":req.body.winner})
-		//     .exec(function(err, results){
-		//     	console.log(results)
-		//     });
+		declareWinner();
 	})
 }
 function ensureAuthenticated(req, res, next){

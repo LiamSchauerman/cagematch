@@ -3,8 +3,8 @@ var MovieView = Backbone.View.extend({
 	initialize: function(){
 		// this.listenTo(this.model, 'change', this.render);
 	},
-	className: "movie col s3 yellow entryView",
-	template: _.template('<%= title %>'),
+	className: "movie col s5 blue entryView",
+	template: _.template('<%= title %><br><%= score %>'),
 	events: {
 		click: function(){
 			console.log('clicked', this.model.attributes)

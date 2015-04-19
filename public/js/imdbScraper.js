@@ -4,7 +4,6 @@ $(document).on('ready', function(){
 	var actorId = "nm0000115";
 	window.queryByActor = function(id){
 		$.get('/getActorCollection?id='+id, function(response){
-			debugger;
 			if(typeof response === "string"){
 				imdbResponse.innerHTML = response;
 				var cagedWisdom = parseHTML(imdbResponse);
@@ -16,17 +15,29 @@ $(document).on('ready', function(){
 						collection: cagedWisdom,
 						imdbId: id
 					},
-					dataType: 'application/json'
+					dataType: 'application/json',
+					success: function(){
+						 $.get('/getActorCollection?id='+id, function(response){
+							debugger
+						 	var cagedWisdom = response.actorCollection.movies;
+						 	console.log(cagedWisdom);
+						 	window.actorId = id;
+						 	var cageMovies = new EntryCollection(cagedWisdom);
+						 	var app = new AppModel({list: cageMovies});
+						 	var appView = new AppView({model: app});
+						 	$('#container').html(appView.render());
+						 });
+					}
 				})
 			} else {
 				var cagedWisdom = response.actorCollection.movies;
+				console.log(cagedWisdom);
+				window.actorId = id;
+				var cageMovies = new EntryCollection(cagedWisdom);
+				var app = new AppModel({list: cageMovies});
+				var appView = new AppView({model: app});
+				$('#container').html(appView.render());
 			}
-			console.log(cagedWisdom);
-			window.actorId = id;
-			var cageMovies = new EntryCollection(cagedWisdom);
-			var app = new AppModel({list: cageMovies});
-			var appView = new AppView({model: app});
-			$('#container').html(appView.render());
 		})
 	}
 	queryByActor(actorId);

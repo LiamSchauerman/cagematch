@@ -1,13 +1,13 @@
 var mongoose = require("mongoose");
 
 var matchupSchema = new mongoose.Schema({
-	titleA : String,
-	titleB : String,
-	aScorePre : Number,
-	aScorePost : Number,
-	bScorePre : Number,
-	bScorePost : Number,
+	actorId : String,
+	winnerScorePre : Number,
+	winnerScorePost : Number,
+	loserScorePre : Number,
+	loserScorePost : Number,
 	winner : String,
+	loser: String,
 	timestamp: { type : Date, default: Date.now },
 });
 

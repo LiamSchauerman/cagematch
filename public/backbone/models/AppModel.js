@@ -7,8 +7,11 @@ var AppModel = Backbone.Model.extend({
 		this.get('EntryList').on('matchupWinner', function(e){
 			console.log('matchup event');
 			self.scoreMatchup(e)
+			self.trigger('newMatchup');
+		})
+		this.on('newMatchup', function(){
+			debugger;
 			self.setMatchup();
-			// self.trigger('newMatchup');
 		})
 	},
 	setMatchup: function(){
@@ -45,7 +48,10 @@ var AppModel = Backbone.Model.extend({
 				loser: loser
 			},
 			success: function(){
-				console.log("Matcup posted")
+				console.log("Matcup posted");
+				// debugger;
+				// this.trigger('setMatchup');
+
 			},
 			error: function(err){
 				console.log(err)
