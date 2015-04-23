@@ -2,7 +2,7 @@
 var User = require('../models/userModel.js');
 var Matchup = require('../models/matchupModel.js');
 var Movie = require('../models/movieModel.js');
-var ActorCollection = require('../models/actorCollectionModel.js');
+var Actor = require('../models/actorModel.js');
 
 // var utils = require('../config/utility.js')
 
@@ -13,61 +13,40 @@ module.exports = function(app, passport){
 	    res.header("Access-Control-Allow-Headers",  'Content-Type, X-Requested-With');
 	    next();
 	});
+	app.get('/setMatchup', function(req, res, next){
+		// get two movies and return their attributes
+		Movie.find({actorId : req.query.id}, function(err, results){
+			if(err) throw err
+			var twoRandomNumbers = function(){
+				var indexA = Math.floor(Math.random()*results.length);
+				var indexB = Math.floor(Math.random()*results.length);
+				while(indexA === indexB){ //no duplicates
+					indexB = Math.floor(Math.random()*results.length);
+				}
+				return [indexA, indexB];
+			}
+			var indexes = twoRandomNumbers();
+			res.send({
+				movieA : results[indexes[0]],
+				movieB : results[indexes[1]]
+			})
+		})
 
-	// app.get("/profile", function(req,res,next){
-	// 	console.log('profile route...')
-	// 	passport.authenticate('local', function(err, user){
-	// 		if(err){ throw err }
-	// 		console.log('reqlogin')
-	// 		req.logIn(user, function(err) {
-	// 		  if (err) { return next(err); }
-	// 		  console.log("redirecting to users/username")
-	// 		  return res.redirect('/users/' + user.local.email);
-	// 		});
-	// 		console.log("here")
-	// 		// console.log(req.user);
-	// 		// console.log('authenticated in /')
-	// 	});
-	// });
-	// app.post('/signup', function(req, res, next) {
-	//   passport.authenticate('local-signup', function(err, user, info) {
-	//     if (err) { return next(err); }
-	//     if (!user) { return res.redirect('/'); }
-	//     req.logIn(user, function(err) {
-	//       if (err) { return next(err); }
-	//       return res.redirect('/');
-	//     });
-	//   })(req, res, next);
-	// });
-	// app.post('/login', function(req, res, next) {
-	//   passport.authenticate('local', function(err, user, info) {
-	//     if (err) { return next(err); }
-	//     if (!user) { return res.redirect('/'); }
-	//     req.logIn(user, function(err) {
-	//       if (err) { return next(err); }
-	//       return res.redirect('/');
-	//     });
-	//   })(req, res, next);
-	// });
-	// app.get('/logout', function(req, res){
-	//   req.logout();
-	//   res.redirect('/');
-	// });
-	// app.get('/user', function(req,res,next){
-	// 	res.send(req.user)
-	// })
-
-	app.get('/getActorCollection', function(req, res){
+	})
+	app.get('/getCollection', function(req, res){
 		var actorId = req.query.id;
 		console.log(actorId)
-		ActorCollection.findOne({imdbId: actorId}, function(err, actorCollection){
+		Movie.find({actorId: actorId}, function(err, collection){
 			if (err) throw err;
-			if( actorCollection ){
+			if( collection && collection.length !== 0 ){
 				console.log('found a coll')
-				res.json({actorCollection:actorCollection});
+				console.log(collection.length)
+				res.json({collection:collection});
 			} else {
 				request('http://www.imdb.com/name/'+actorId, function (error, response, body) {
 					if (!error && response.statusCode == 200) {
+						console.log("got html", typeof body)
+						console.log(body)
 			    		res.send(body)
 				    }
 				})
@@ -76,28 +55,33 @@ module.exports = function(app, passport){
 		console.log('inside /scrape route');
 
 	});
-	app.post('/postActorCollection', function(req,res){
-		var actorCollection = new ActorCollection();
-		actorCollection.imdbId = req.body.imdbId;
-		console.log(req.body.collection)
-		actorCollection.movies = [];
-		for( var i=0; i < req.body.collection.length; i++){
-			var movie = {};
-			var props = Object.keys(req.body.collection[i])
-			console.log(props)
-			for( var j=0; j< props.length; j++){
-				movie[props[j]] = req.body.collection[i][props[j]];
-			}
-			actorCollection.movies.push(movie)
-		}
-
-		// actorCollection.movies = req.body.collection;
-		actorCollection.save(function(err, actorCollection) {
-			console.log('actor collection save');
-			console.log(actorCollection)
-		    if (err) throw err;
-		    res.status(201).end();
-		});
+	function insertCollection(collection, actorId, callback) {
+	  var inserted = 0;
+	  for(var i = 0; i < collection.length; i++) {
+	  	var movie = new Movie(collection[i]);
+	  	movie.actorId = actorId;
+	    movie.save(function(err) {
+	      if (err) {
+	        throw err;
+	        return;
+	      }
+	      if (++inserted == collection.length) {
+	        callback();
+	      }
+	    });
+	  }
+	}
+	app.post('/postCollection', function(req,res){
+		// make and save actor
+		var actor = new Actor();
+		actor.imdbId = req.body.actorId;
+		actor.save(function(err,log){
+			// create new movie objects for each in array
+			console.log("about to insert collection")
+			insertCollection(req.body.collection, req.body.actorId, function(){
+				res.status(200).end();
+			})
+		})
 	});
 	app.post('/scoreMatchup', function(req,res){
 		// calculate score change
@@ -111,31 +95,16 @@ module.exports = function(app, passport){
 			var winnerScore;
 			var loserScore;
 
-			ActorCollection.findOne({
-			    imdbId: req.body.actorId,
-			},
-			{
-			    movies: { $elemMatch: {
-			        title: req.body.winner
-			    }},
-			}, function(err, winner){
-				if(err) throw err
-				console.log('winner',winner);
-				console.log('matchup')
-				matchup.winnerScorePre = winner.movies[0].score;
+			Movie.findOne({title: matchup.winner}, function(err, winner){
+				if(err) throw err;
+				console.log('winnerrrr',winner)
+				matchup.winnerScorePre = winner.score;
 				console.log(matchup.winnerScorePre)
 			    console.log("oooh hes tryin");
 				// res.status(200).end()
-				ActorCollection.findOne({
-				    imdbId: req.body.actorId,
-				},
-				{
-				    movies: { $elemMatch: {
-				        title: req.body.loser
-				    }},
-				}, function(err, loser){
+				Movie.findOne({title: matchup.loser}, function(err, loser){
 					if(err) throw err;
-					matchup.loserScorePre = loser.movies[0].score;
+					matchup.loserScorePre = loser.score;
 					//calculate change in score
 					var winExp = 1/(1+Math.pow(10, ( matchup.loserScorePre - matchup.winnerScorePre )/400));
 					var K = 24;
@@ -143,35 +112,22 @@ module.exports = function(app, passport){
 					var diff = Math.floor(matchup.winnerScorePost - matchup.winnerScorePre);
 					console.log(matchup.loserScorePre, matchup.winnerScorePre, diff)
 					matchup.loserScorePost = matchup.loserScorePre - diff;
-					console.log('searching',winner.movies[0]._id)
-					ActorCollection.update({
-						_id: winner._id, 
-						"movies._id": winner.movies[0]._id
-					}, 
-					{
-						$set: {
-							"movies.$.score" : matchup.winnerScorePost
-						}
-					}, function(err, numAffected) {
-						console.log(numAffected);
-						console.log('update uuuuu');
-						ActorCollection.update({
-							_id: loser._id, 
-							"movies._id": loser.movies[0]._id
-						}, 
-						{
-							$set: {
-								"movies.$.score" : matchup.loserScorePost
-							}
-						}, function(err, loserUpdate) {
-							console.log(loserUpdate);
-							console.log('update uuuuu')
-							console.log(matchup)
-							matchup.save(function(err, log){
-								res.status(200).end()
-							});
-						});
-					});
+					console.log('searching',winner._id)
+					Movie.update({_id: winner._id}, {$set:{
+						"score" : matchup.winnerScorePost
+					}}, function(err, updated){
+						Movie.update({_id: loser._id}, {$set:{
+							"score" : matchup.loserScorePost
+						}}, function(err, updated){
+							matchup.save(function(err,log){
+								console.log('scored ......')
+								res.json({
+									winnerScore: matchup.winnerScorePost,
+									loserScore: matchup.loserScorePost
+								})
+							})
+						})
+					})
 				})
 			})
 		};

@@ -19,47 +19,32 @@ $(document).on('ready', function(){
 					dataType: 'application/json',
 					success: function(){
 						 $.get('/getCollection?id='+id, function(response){
-							debugger;
 						 	var movieArray = response.collection;
 						 	console.log(movieArray);
-						 	window.actorId = id;
-						 	var cageMovies = new EntryCollection(movieArray);
-						 	var app = new AppModel({list: cageMovies});
-						 	var appView = new AppView({model: app});
-						 	$('#container').html(appView.render());
+						 	window.actorId = id;	
 						 });
 					},
 					error: function(e){
 						 $.get('/getCollection?id='+id, function(response){
-							debugger;
 						 	var movieArray = response.collection;
 						 	console.log(movieArray);
 						 	window.actorId = id;
-						 	var cageMovies = new EntryCollection(movieArray);
-						 	var app = new AppModel({list: cageMovies});
-						 	var appView = new AppView({model: app});
-						 	$('#container').html(appView.render());
-						 });					}
+						 });					
+					}
 				})
 			} else {
 				var movieArray = response.collection;
 				console.log(movieArray);
 				window.actorId = id;
-				var cageMovies = new EntryCollection(movieArray);
-				var app = new AppModel({list: cageMovies});
-				var appView = new AppView({model: app});
-				$('#container').html(appView.render());
 			}
 		})
 	}
-	debugger;
-	queryByActor(actorId);
+	// queryByActor(actorId);
 	
 });
 
 $("#testButton").on('click', function(){
 	var actorId = $("#query").val() || "nm0000115";
-	debugger;
 	queryByActor(actorId);
 });
 function parseHTML(element){

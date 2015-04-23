@@ -1,8 +1,9 @@
 var mongoose = require("mongoose");
 
 var movieSchema = new mongoose.Schema({
+	actorId: String,
 	title : String,
-	score : Number,
+	score : {type : Number, default: 1200},
 	year : String,
 	imdbId : String,
 	timestamp: { type : Date, default: Date.now },
