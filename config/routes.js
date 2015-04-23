@@ -108,8 +108,6 @@ module.exports = function(app, passport){
 				})
 			}
 		})
-		console.log('inside /scrape route');
-
 	});
 	function insertCollection(collection, actorId, callback) {
 	  var inserted = 0;

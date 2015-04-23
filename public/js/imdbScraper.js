@@ -3,6 +3,8 @@ var titles = [];
 $(document).on('ready', function(){
 	var actorId = "nm0000115";
 	window.queryByActor = function(id){
+		// set windowActorId
+		// if we dont have this actor, add it
 		$.get('/getCollection?id='+id, function(response){
 			if(typeof response === "string"){
 				// parse the string and send it back to server
@@ -18,18 +20,17 @@ $(document).on('ready', function(){
 					},
 					dataType: 'application/json',
 					success: function(){
-						 $.get('/getCollection?id='+id, function(response){
-						 	var movieArray = response.collection;
-						 	console.log(movieArray);
-						 	window.actorId = id;	
-						 });
+						 // $.get('/getCollection?id='+id, function(response){
+						 // 	var movieArray = response.collection;
+						 // 	console.log(movieArray);
+						 	window.actorId = id;
+						 	$.get('/photos?id='+actorId)
+
+						 // });
 					},
 					error: function(e){
-						 $.get('/getCollection?id='+id, function(response){
-						 	var movieArray = response.collection;
-						 	console.log(movieArray);
-						 	window.actorId = id;
-						 });					
+						window.actorId = id;
+						$.get('/photos?id='+actorId)
 					}
 				})
 			} else {
@@ -45,10 +46,7 @@ $(document).on('ready', function(){
 
 $("#testButton").on('click', function(){
 	var actorId = $("#query").val() || "nm0000115";
-	$.get('/photos?id='+actorId, function(data){
-		debugger;
-	})
-	// queryByActor(actorId);
+	queryByActor(actorId);
 });
 
 function parseHTML(element){
