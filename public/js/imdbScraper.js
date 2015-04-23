@@ -39,14 +39,18 @@ $(document).on('ready', function(){
 			}
 		})
 	}
-	// queryByActor(actorId);
+	queryByActor(actorId);
 	
 });
 
 $("#testButton").on('click', function(){
 	var actorId = $("#query").val() || "nm0000115";
-	queryByActor(actorId);
+	$.get('/photos?id='+actorId, function(data){
+		debugger;
+	})
+	// queryByActor(actorId);
 });
+
 function parseHTML(element){
 	// takes imdb html, returns an array of objects
 	var children = imdbResponse.getElementsByClassName('filmo-category-section')[0].children;
@@ -65,7 +69,7 @@ function parseHTML(element){
 		}
 		var path = el.getAttribute('href');
 		path = path.substring(path.indexOf('tt'), path.length);
-		data.imdb_id = path.substring(0, path.indexOf('/'));
+		data.imdbId = path.substring(0, path.indexOf('/'));
 		titles.push(data);
 	}
 	return titles

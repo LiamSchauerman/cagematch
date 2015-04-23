@@ -16,6 +16,7 @@ app.controller('MatchupController', function($scope, $window, matchup){
 		$window.actorId = "nm0000115";
 	}
 	console.log('in matchup controller')
+	
 	matchup.set().then(function(resp){
 		if(!$scope.movieA || $scope.movieA === ""){
 			$scope.movieA = resp.data.movieA;

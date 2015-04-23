@@ -3,6 +3,8 @@ var User = require('../models/userModel.js');
 var Matchup = require('../models/matchupModel.js');
 var Movie = require('../models/movieModel.js');
 var Actor = require('../models/actorModel.js');
+var cheerio = require('cheerio');
+
 
 // var utils = require('../config/utility.js')
 
@@ -32,6 +34,60 @@ module.exports = function(app, passport){
 			})
 		})
 
+	})
+	function scrapePhotos(collection, checked, callback) {
+		var checked = checked || 0;
+		console.log(collection[3])
+		if(checked < collection.length){
+			console.log(checked)
+		  	request("http://www.imdbapi.com/?i=&t="+collection[checked].title.replace(/ /, "%20"), function(err,resp,body){
+		  		if(!err && resp.statusCode === 200){
+		  			var imgUrl = JSON.parse(body).Poster;
+		  			console.log(checked)
+		  			if( imgUrl ){
+			  			Movie.update({_id: collection[checked]._id}, {$set:{
+			  				"imgUrl" : imgUrl
+			  			}}, function(err, updated){
+			  				if(err) throw err
+		  					console.log(updated);
+			  				if (++checked === collection.length) {
+			  				  callback();
+			  				}
+			  				scrapePhotos(collection, checked, callback)
+			  			})
+		  			} else {
+		  				if (++checked === collection.length) {
+		  				  callback();
+		  				}
+		  				console.log('checked again', checked)
+		  				scrapePhotos(collection, checked, callback)
+
+		  			}
+		  		} else {
+		  			console.log('no image for ',checked)
+		  			if (++checked === collection.length) {
+		  			  callback();
+		  			}
+		  			console.log('checked again', checked)
+		  			scrapePhotos(collection, checked, callback)
+		  		}
+		  	})
+		}
+	}
+	app.get('/photos', function(req,res){
+		// needs actorId
+		Movie.find({actorId : req.query.id}, function(err, collection){
+			console.log(collection[9])
+			scrapePhotos(collection, 0, function(){
+				res.status(200).end()
+			})
+			// request("http://www.imdbapi.com/?i=&t="+collection[9].title.replace(/ /, "%20"), function(err,resp,body){
+			// 	if(!err && resp.statusCode === 200){
+			// 		console.log(JSON.parse(body).Poster);
+			// 		res.send(body.Poster)
+			// 	}
+			// })
+		})
 	})
 	app.get('/getCollection', function(req, res){
 		var actorId = req.query.id;
@@ -65,7 +121,7 @@ module.exports = function(app, passport){
 	        throw err;
 	        return;
 	      }
-	      if (++inserted == collection.length) {
+	      if (++inserted === collection.length) {
 	        callback();
 	      }
 	    });
@@ -73,6 +129,7 @@ module.exports = function(app, passport){
 	}
 	app.post('/postCollection', function(req,res){
 		// make and save actor
+		// req should have actorId and a parsed collection of movie objects
 		var actor = new Actor();
 		actor.imdbId = req.body.actorId;
 		actor.save(function(err,log){
@@ -98,9 +155,6 @@ module.exports = function(app, passport){
 			if(err) throw err;
 			console.log('winnerrrr',winner)
 			matchup.winnerScorePre = winner.score;
-			console.log(matchup.winnerScorePre)
-		    console.log("oooh hes tryin");
-			// res.status(200).end()
 			Movie.findOne({title: matchup.loser}, function(err, loser){
 				if(err) throw err;
 				matchup.loserScorePre = loser.score;
@@ -111,7 +165,6 @@ module.exports = function(app, passport){
 				var diff = Math.floor(matchup.winnerScorePost - matchup.winnerScorePre);
 				console.log(matchup.loserScorePre, matchup.winnerScorePre, diff)
 				matchup.loserScorePost = matchup.loserScorePre - diff;
-				console.log('searching',winner._id)
 				Movie.update({_id: winner._id}, {$set:{
 					"score" : matchup.winnerScorePost
 				}}, function(err, updated){

@@ -6,6 +6,7 @@ var movieSchema = new mongoose.Schema({
 	score : {type : Number, default: 1200},
 	year : String,
 	imdbId : String,
+	imgUrl : String,
 	timestamp: { type : Date, default: Date.now },
 });
 
