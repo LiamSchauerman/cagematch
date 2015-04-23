@@ -86,52 +86,49 @@ module.exports = function(app, passport){
 	app.post('/scoreMatchup', function(req,res){
 		// calculate score change
 		// find mongoose model for winner and loser
-		var declareWinner = function(){
-			var matchup = new Matchup();
-			matchup.actorId = req.body.actorId;
-			matchup.winner = req.body.winner;
-			matchup.loser = req.body.loser;
-			// access score
-			var winnerScore;
-			var loserScore;
+		var matchup = new Matchup();
+		matchup.actorId = req.body.actorId;
+		matchup.winner = req.body.winner;
+		matchup.loser = req.body.loser;
+		// access score
+		var winnerScore;
+		var loserScore;
 
-			Movie.findOne({title: matchup.winner}, function(err, winner){
+		Movie.findOne({title: matchup.winner}, function(err, winner){
+			if(err) throw err;
+			console.log('winnerrrr',winner)
+			matchup.winnerScorePre = winner.score;
+			console.log(matchup.winnerScorePre)
+		    console.log("oooh hes tryin");
+			// res.status(200).end()
+			Movie.findOne({title: matchup.loser}, function(err, loser){
 				if(err) throw err;
-				console.log('winnerrrr',winner)
-				matchup.winnerScorePre = winner.score;
-				console.log(matchup.winnerScorePre)
-			    console.log("oooh hes tryin");
-				// res.status(200).end()
-				Movie.findOne({title: matchup.loser}, function(err, loser){
-					if(err) throw err;
-					matchup.loserScorePre = loser.score;
-					//calculate change in score
-					var winExp = 1/(1+Math.pow(10, ( matchup.loserScorePre - matchup.winnerScorePre )/400));
-					var K = 24;
-					matchup.winnerScorePost = matchup.winnerScorePre + K*(1-winExp);
-					var diff = Math.floor(matchup.winnerScorePost - matchup.winnerScorePre);
-					console.log(matchup.loserScorePre, matchup.winnerScorePre, diff)
-					matchup.loserScorePost = matchup.loserScorePre - diff;
-					console.log('searching',winner._id)
-					Movie.update({_id: winner._id}, {$set:{
-						"score" : matchup.winnerScorePost
+				matchup.loserScorePre = loser.score;
+				//calculate change in score
+				var winExp = 1/(1+Math.pow(10, ( matchup.loserScorePre - matchup.winnerScorePre )/400));
+				var K = 24;
+				matchup.winnerScorePost = matchup.winnerScorePre + K*(1-winExp);
+				var diff = Math.floor(matchup.winnerScorePost - matchup.winnerScorePre);
+				console.log(matchup.loserScorePre, matchup.winnerScorePre, diff)
+				matchup.loserScorePost = matchup.loserScorePre - diff;
+				console.log('searching',winner._id)
+				Movie.update({_id: winner._id}, {$set:{
+					"score" : matchup.winnerScorePost
+				}}, function(err, updated){
+					Movie.update({_id: loser._id}, {$set:{
+						"score" : matchup.loserScorePost
 					}}, function(err, updated){
-						Movie.update({_id: loser._id}, {$set:{
-							"score" : matchup.loserScorePost
-						}}, function(err, updated){
-							matchup.save(function(err,log){
-								console.log('scored ......')
-								res.json({
-									winnerScore: matchup.winnerScorePost,
-									loserScore: matchup.loserScorePost
-								})
+						matchup.save(function(err,log){
+							console.log('scored ......')
+							res.json({
+								winnerScore: matchup.winnerScorePost,
+								loserScore: matchup.loserScorePost
 							})
 						})
 					})
 				})
 			})
-		};
-		declareWinner();
+		})
 	})
 }
 function ensureAuthenticated(req, res, next){
