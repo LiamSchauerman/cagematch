@@ -3,49 +3,63 @@ var titles = [];
 $(document).on('ready', function(){
 	var actorId = "nm0000115";
 	window.queryByActor = function(id){
-		$.get('/getActorCollection?id='+id, function(response){
+		$.get('/getCollection?id='+id, function(response){
 			if(typeof response === "string"){
+				// parse the string and send it back to server
 				imdbResponse.innerHTML = response;
-				var cagedWisdom = parseHTML(imdbResponse);
+				var movieArray = parseHTML(imdbResponse);
 				// post this array to server then to db
 				$.ajax({
 					method: 'POST',
-					url: '/postActorCollection',
+					url: '/postCollection',
 					data: {
-						collection: cagedWisdom,
-						imdbId: id
+						collection: movieArray,
+						actorId: id
 					},
 					dataType: 'application/json',
 					success: function(){
-						 $.get('/getActorCollection?id='+id, function(response){
-							debugger
-						 	var cagedWisdom = response.actorCollection.movies;
-						 	console.log(cagedWisdom);
+						 $.get('/getCollection?id='+id, function(response){
+							debugger;
+						 	var movieArray = response.collection;
+						 	console.log(movieArray);
 						 	window.actorId = id;
-						 	var cageMovies = new EntryCollection(cagedWisdom);
+						 	var cageMovies = new EntryCollection(movieArray);
 						 	var app = new AppModel({list: cageMovies});
 						 	var appView = new AppView({model: app});
 						 	$('#container').html(appView.render());
 						 });
-					}
+					},
+					error: function(e){
+						 $.get('/getCollection?id='+id, function(response){
+							debugger;
+						 	var movieArray = response.collection;
+						 	console.log(movieArray);
+						 	window.actorId = id;
+						 	var cageMovies = new EntryCollection(movieArray);
+						 	var app = new AppModel({list: cageMovies});
+						 	var appView = new AppView({model: app});
+						 	$('#container').html(appView.render());
+						 });					}
 				})
 			} else {
-				var cagedWisdom = response.actorCollection.movies;
-				console.log(cagedWisdom);
+				var movieArray = response.collection;
+				console.log(movieArray);
 				window.actorId = id;
-				var cageMovies = new EntryCollection(cagedWisdom);
+				var cageMovies = new EntryCollection(movieArray);
 				var app = new AppModel({list: cageMovies});
 				var appView = new AppView({model: app});
 				$('#container').html(appView.render());
 			}
 		})
 	}
+	debugger;
 	queryByActor(actorId);
 	
 });
 
 $("#testButton").on('click', function(){
 	var actorId = $("#query").val() || "nm0000115";
+	debugger;
 	queryByActor(actorId);
 });
 function parseHTML(element){
