@@ -7,20 +7,22 @@
 
     <body>
       <div id='container'>
-      	<div ng-view id="matchupView" class="row">
+      	<div ui-view="matchupView" id="matchupView" class="row">
       		<div id="movieA"></div>
 	      	<div id="movieB"></div>
       	</div>
       </div>
       <button id="testButton">Throw him in the CAGE</button>
       <input id="query" placeholder="Actor's IMDB id">
-      
+      <div ui-view="actorList"></div>
+
     </body>
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
     <script type="text/javascript" src="bower_components/materialize/dist/js/materialize.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 
     <script src="angular/cageModule.js"></script>
     <!-- // <script src="bower_components/backbone/backbone.js"></script> -->

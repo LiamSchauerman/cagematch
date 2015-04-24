@@ -1,10 +1,10 @@
-<div id="matchup">
+<div id="matchup" ng-controller="MatchupController">
 	<div class="row">
 		<div class="card movie col s5" id="movieA" ng-click="newmatchup($event)">
-			{{movieA.title}}<hr/>{{movieA.score}}<hr/><img src={{movieA.imgUrl}} />
+			{{movieA.title}}<hr/>{{movieA.score}}<hr/><img ng-show="movieA.imgUrl" src={{movieA.imgUrl}} />
 		</div>
 		<div class="card movie col s5" id="movieB" ng-click="newmatchup($event)">
-			{{movieB.title}}<hr/>{{movieB.score}}<hr /><img src={{movieB.imgUrl}} />
+			{{movieB.title}}<hr/>{{movieB.score}}<hr /><img ng-show="movieB.imgUrl" src={{movieB.imgUrl}} />
 		</div>
 	</div>
 	<button ng-click="queryActor()" id="testButton">match him up in the CAGE</button>

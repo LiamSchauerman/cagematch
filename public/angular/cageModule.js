@@ -1,17 +1,27 @@
 console.log('cageModule.js')
-var app = angular.module('cageMatch', ['ngRoute'])
-.config(function($routeProvider) {
-  $routeProvider
-    .when('/', {
-      templateUrl: 'angular/views/matchup.html',
-      controller: 'MatchupController'
-    })
-    .otherwise({
-      redirectTo: '/'
-    })
+var app = angular.module('cageMatch', ['ui.router'])
+.config(function($stateProvider, $urlRouterProvider) {
+//   $routeProvider
+//     .when('/', {
+//       templateUrl: 'angular/views/matchup.html',
+//       controller: 'MatchupController'
+//     })
+//     .otherwise({
+//       redirectTo: '/'
+//     })
+	$stateProvider
+		.state('home', {
+		  url: "/home",
+		  views: {
+		    "matchupView": { templateUrl: "angular/views/matchup.html" },
+		    "actorList": { templateUrl: "angular/views/actorList.html" }
+		  }
+		})
 })
 
+
 app.controller('MatchupController', function($scope, $window, matchup){
+	console.log('matchup controller');
 	if(!$window.actorId){
 		$window.actorId = "nm0000115";
 	}
@@ -90,6 +100,18 @@ app.controller('MatchupController', function($scope, $window, matchup){
 	// }
 
 	}
+})
+
+app.controller("ActorController", function($scope, $http){
+	console.log('actor controller');
+
+	$http({
+		method: 'GET',
+		url: 'actorList'
+	}).then(function(resp){
+		debugger;
+		$scope.actors = resp.data
+	})
 })
 
 app.factory('matchup', ['$http', '$window', function($http, $window){

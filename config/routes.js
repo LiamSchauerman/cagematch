@@ -35,6 +35,14 @@ module.exports = function(app, passport){
 		})
 
 	})
+
+	app.get('/actorList', function(req,res){
+		Actor.find(function(err,coll){
+			if(err) throw err
+			console.log(coll)
+			res.send(coll)
+		})
+	})
 	function scrapePhotos(collection, checked, callback) {
 		var checked = checked || 0;
 		console.log(collection[3])
@@ -44,7 +52,7 @@ module.exports = function(app, passport){
 		  		if(!err && resp.statusCode === 200){
 		  			var imgUrl = JSON.parse(body).Poster;
 		  			console.log(checked)
-		  			if( imgUrl ){
+		  			if( imgUrl && imgUrl !== "N/A"){
 			  			Movie.update({_id: collection[checked]._id}, {$set:{
 			  				"imgUrl" : imgUrl
 			  			}}, function(err, updated){
