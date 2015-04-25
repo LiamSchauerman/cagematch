@@ -32,8 +32,8 @@ module.exports = function(app, passport){
 				movieA : results[indexes[0]],
 				movieB : results[indexes[1]]
 			})
+			res.status(400).end()
 		})
-
 	})
 
 	app.get('/actorList', function(req,res){
@@ -96,6 +96,11 @@ module.exports = function(app, passport){
 
 	})
 	app.get('/getCollection', function(req,res){
+		// this is a lot of async
+		// checks if the query is the imdbId or the actor's name
+		// if the actor is not in the db, fetch the actor's info, then fetch all of that actors movies
+		// if the actor is in the db, return the actors imdbId for use by setMatchup
+
 		var query = req.query.id;
 		console.log("queryyy",query)
 		if( query.indexOf("%20") >= 0 || query.indexOf(' ') >= 0){
@@ -143,39 +148,75 @@ module.exports = function(app, passport){
 						    		var newActor = new Actor()
 						    		newActor.name = name;
 						    		newActor.imdbId = hrefParsed;
-						    		newActor.save(function(err, updated){
-						    			console.log('saving actor', newActor)
-				    					request('http://www.imdb.com/name/'+newActor.imdbId, function (error, response, body) {
-				    						if (!error && response.statusCode == 200) {
-				    							// parse actors imdb page for a collection of movies
-				    							var $ = cheerio.load(body);
-				    							var children = $(".filmo-category-section .filmo-row b a");
-				    							var data;
-				    							var movieCollection = [];
-				    							children.each(function(i, elem){
-				    								data = {};
-				    								data.imdbId = elem.attribs.href;
-				    								data.title = elem.children[0].data;
-				    								data.actorId = newActor.imdbId;
-				    								var startIndex = data.imdbId.indexOf('tt')
-				    								for( var i = startIndex + 2; i < data.imdbId.length; i++ ){
-				    									if( href[i] === "/" ){
-				    										var endIndex = i;
-				    										var hrefParsed = data.imdbId.substring(startIndex, endIndex)
-				    										break
-				    									}
-				    								}
-				    								data.imdbId = hrefParsed
-				    								movieCollection.push(data)
-				    							})
-				    							// movieCollection is our array
-				    							console.log("about to insert collection")
-				    							insertCollection(movieCollection, newActor.actorId, function(){
-				    								res.send(newActor.imdbId);
-				    							})
-				    					    }
-				    					})
+						    		request('http://www.imdb.com/name/'+newActor.imdbId, function (error, response, body) {
+						    			if (!error && response.statusCode == 200) {
+						    				// parse actors imdb page for a collection of movies
+						    				var $ = cheerio.load(body);
+						    				var children = $("#filmo-head-actor").next().children()
+						    				console.log('children')
+						    				console.log(children)
+						    				if(children.length === 0){
+						    					var children = $("#filmo-head-actress").next().children()
+						    				}
+						    				console.log('targeted all children', children.length)
+						    				var data;
+						    				var movieCollection = [];
+						    				children.each(function(i, elem){
+						    					data = {};
+						    					data.imdbId = elem.children[1].next.next.children[0].attribs.href;
+						    					data.title = elem.children[1].next.next.children[0].children[0].data;
+						    					data.actorId = newActor.imdbId;
+						    					var startIndex = data.imdbId.indexOf('tt')
+						    					for( var i = startIndex + 2; i < data.imdbId.length; i++ ){
+						    						if( data.imdbId[i] === "/" ){
+						    							var endIndex = i;
+						    							var hrefParsed = data.imdbId.substring(startIndex, endIndex)
+						    							break
+						    						}
+						    					}
+						    					data.imdbId = hrefParsed;
+						    					movieCollection.push(data)
+						    				})
+						    				// movieCollection is our array
+						    				console.log("about to insert collection")
+						    				insertCollection(movieCollection, newActor.imdbId, function(){
+						    					res.send(newActor.imdbId);
+						    				})
+						    		    }
 						    		})
+						    		// newActor.save(function(err, updated){
+						    		// 	console.log('saving actor', newActor)
+				    				// 	request('http://www.imdb.com/name/'+newActor.imdbId, function (error, response, body) {
+				    				// 		if (!error && response.statusCode == 200) {
+				    				// 			// parse actors imdb page for a collection of movies
+				    				// 			var $ = cheerio.load(body);
+				    				// 			var children = $(".filmo-category-section .filmo-row b a");
+				    				// 			var data;
+				    				// 			var movieCollection = [];
+				    				// 			children.each(function(i, elem){
+				    				// 				data = {};
+				    				// 				data.imdbId = elem.attribs.href;
+				    				// 				data.title = elem.children[0].data;
+				    				// 				data.actorId = newActor.imdbId;
+				    				// 				var startIndex = data.imdbId.indexOf('tt')
+				    				// 				for( var i = startIndex + 2; i < data.imdbId.length; i++ ){
+				    				// 					if( href[i] === "/" ){
+				    				// 						var endIndex = i;
+				    				// 						var hrefParsed = data.imdbId.substring(startIndex, endIndex)
+				    				// 						break
+				    				// 					}
+				    				// 				}
+				    				// 				data.imdbId = hrefParsed
+				    				// 				movieCollection.push(data)
+				    				// 			})
+				    				// 			// movieCollection is our array
+				    				// 			console.log("about to insert collection")
+				    				// 			insertCollection(movieCollection, newActor.actorId, function(){
+				    				// 				res.send(newActor.imdbId);
+				    				// 			})
+				    				// 	    }
+				    				// 	})
+						    		// })
 								} else {
 									res.status(400).end("no actor by this name")
 								}
@@ -206,7 +247,7 @@ module.exports = function(app, passport){
 				} else {
 					// actor not in db
 					console.log('actor not found with this id in DB');
-					request('http://www.imdb.com/name/nm0000115', function (error, response, body) {
+					request('http://www.imdb.com/name/'+query, function (error, response, body) {
 						if (!error && response.statusCode == 200) {
 							// parse actors imdb page for a collection of movies
 							var $ = cheerio.load(body);
@@ -225,6 +266,9 @@ module.exports = function(app, passport){
 										// parse actors imdb page for a collection of movies
 										var $ = cheerio.load(body);
 										var children = $("#filmo-head-actor").next().children()
+										if(children.length === 0){
+											var children = $("#filmo-head-actress").next().children()
+										}
 										console.log('targeted all children', children.length)
 										var data;
 										var movieCollection = [];
@@ -299,11 +343,10 @@ module.exports = function(app, passport){
 			if (!error && response.statusCode == 200) {
 				// parse actors imdb page for a collection of movies
 				var $ = cheerio.load(body);
-				// var children = $(".filmo-category-section .filmo-row b a").first();
 				var children = $("#filmo-head-actor").next().children()
-				// for( var i=children.length; i >children.length - 4; i--){
-				// 	console.log(children[i])
-				// }
+				if(children.length === 0){
+					var children = $("#filmo-head-actress").next().children()
+				}
 				console.log('targeted all children', children.length)
 				var data;
 				var movieCollection = [];

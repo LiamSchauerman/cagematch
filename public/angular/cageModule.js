@@ -1,14 +1,7 @@
 console.log('cageModule.js')
 var app = angular.module('cageMatch', ['ui.router'])
-.config(function($stateProvider, $urlRouterProvider) {
-//   $routeProvider
-//     .when('/', {
-//       templateUrl: 'angular/views/matchup.html',
-//       controller: 'MatchupController'
-//     })
-//     .otherwise({
-//       redirectTo: '/'
-//     })
+.config(function($locationProvider, $stateProvider, $urlRouterProvider) {
+	$locationProvider.html5Mode(true);
 	$stateProvider
 		.state('home', {
 		  url: "/",
@@ -26,16 +19,15 @@ app.controller('MatchupController', function($scope, $window, matchup){
 		$window.actorId = "nm0000115";
 	}
 	$scope.newId = "";
-	console.log('in matchup controller')
 
-	matchup.set().then(function(resp){
-		if(!$scope.movieA || $scope.movieA === ""){
-			$scope.movieA = resp.data.movieA;
-			$scope.movieB = resp.data.movieB;
-		}
-	})
-	$scope.newmatchup = function($event){
-		if($event.target.innerText.indexOf($scope.movieA.title) >= 0){
+	// matchup.set().then(function(resp){
+	// 	if(!$scope.movieA || $scope.movieA === ""){
+	// 		$scope.movieA = resp.data.movieA;
+	// 		$scope.movieB = resp.data.movieB;
+	// 	}
+	// })
+	$scope.newmatchup = function(clicked){
+		if(clicked.title === $scope.movieA.title){
 			var winner = $scope.movieA;
 			var loser = $scope.movieB;
 		} else {
@@ -51,62 +43,17 @@ app.controller('MatchupController', function($scope, $window, matchup){
 	}
 	$scope.queryActor = function(){
 		// set windowActorId
-		// if we dont have this actor, add it
 		var id = $scope.newId
-		id = id.replace(/ /g, "%20")
-		$.get('/getCollection?id='+id, function(actorId){
-			debugger;
-			$window.actorId = actorId
-		})
-		// $.get('/getCollection?id='+id, function(response){
-		// 	if(typeof response === "string"){
-		// 		// parse the string and send it back to server
-		// 		// imdbResponse.innerHTML = response;
-		// 		// var movieArray = parseHTML(imdbResponse);
-		// 		// post this array to server then to db
-		// 		$.ajax({
-		// 			method: 'POST',
-		// 			url: '/postCollection',
-		// 			data: {
-		// 				collection: movieArray,
-		// 				actorId: id,
-		// 				// actorName : actorName
-		// 			},
-		// 			dataType: 'application/json',
-		// 			success: function(){
-		// 				 // $.get('/getCollection?id='+id, function(response){
-		// 				 // 	var movieArray = response.collection;
-		// 				 // 	console.log(movieArray);
-		// 				 debugger;
-		// 				 	window.actorId = id;
-		// 				 	$.get('/photos?id='+actorId)
-		// 				 	matchup.set().then(function(resp){
-		// 			 			$scope.movieA = resp.data.movieA;
-		// 			 			$scope.movieB = resp.data.movieB;
-		// 				 	})						 // });
-		// 			},
-		// 			error: function(e){
-		// 				window.actorId = id;
-		// 				$.get('/photos?id='+actorId);
-		// 				matchup.set().then(function(resp){
-		// 					$scope.movieA = resp.data.movieA;
-		// 					$scope.movieB = resp.data.movieB;
-		// 				})
-		// 			}
-		// 		})
-		// 	} else {
-		// 		debugger;
-		// 		var movieArray = response.collection;
-		// 		console.log(movieArray);
-		// 		$window.actorId = id;
-		// 		matchup.set().then(function(resp){
-		// 			$scope.movieA = resp.data.movieA;
-		// 			$scope.movieB = resp.data.movieB;
-		// 		})
-		// 	}
-		// })
-	// }
 
+		$.get('/getCollection?id='+id, function(actorId){
+			$window.actorId = actorId;
+			$.get('/photos?id='+actorId)
+			matchup.set().then(function(resp){
+				$scope.movieA = resp.data.movieA;
+				$scope.movieB = resp.data.movieB;
+			})
+
+		})
 	}
 })
 
@@ -117,7 +64,6 @@ app.controller("ActorController", function($scope, $http){
 		method: 'GET',
 		url: 'actorList'
 	}).then(function(resp){
-		debugger;
 		$scope.actors = resp.data
 	})
 })
