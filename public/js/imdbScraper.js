@@ -40,7 +40,7 @@ $(document).on('ready', function(){
 			}
 		})
 	}
-	queryByActor(actorId);
+	// queryByActor(actorId);
 	
 });
 

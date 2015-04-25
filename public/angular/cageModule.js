@@ -11,7 +11,7 @@ var app = angular.module('cageMatch', ['ui.router'])
 //     })
 	$stateProvider
 		.state('home', {
-		  url: "/home",
+		  url: "/",
 		  views: {
 		    "matchupView": { templateUrl: "angular/views/matchup.html" },
 		    "actorList": { templateUrl: "angular/views/actorList.html" }
@@ -53,50 +53,58 @@ app.controller('MatchupController', function($scope, $window, matchup){
 		// set windowActorId
 		// if we dont have this actor, add it
 		var id = $scope.newId
-		$.get('/getCollection?id='+id, function(response){
-			if(typeof response === "string"){
-				// parse the string and send it back to server
-				imdbResponse.innerHTML = response;
-				var movieArray = parseHTML(imdbResponse);
-				// post this array to server then to db
-				$.ajax({
-					method: 'POST',
-					url: '/postCollection',
-					data: {
-						collection: movieArray,
-						actorId: id
-					},
-					dataType: 'application/json',
-					success: function(){
-						 // $.get('/getCollection?id='+id, function(response){
-						 // 	var movieArray = response.collection;
-						 // 	console.log(movieArray);
-						 	window.actorId = id;
-						 	$.get('/photos?id='+actorId)
-						 	matchup.set().then(function(resp){
-					 			$scope.movieA = resp.data.movieA;
-					 			$scope.movieB = resp.data.movieB;
-						 	})						 // });
-					},
-					error: function(e){
-						window.actorId = id;
-						$.get('/photos?id='+actorId);
-						matchup.set().then(function(resp){
-							$scope.movieA = resp.data.movieA;
-							$scope.movieB = resp.data.movieB;
-						})
-					}
-				})
-			} else {
-				var movieArray = response.collection;
-				console.log(movieArray);
-				$window.actorId = id;
-				matchup.set().then(function(resp){
-					$scope.movieA = resp.data.movieA;
-					$scope.movieB = resp.data.movieB;
-				})
-			}
+		id = id.replace(/ /g, "%20")
+		$.get('/getCollection?id='+id, function(actorId){
+			debugger;
+			$window.actorId = actorId
 		})
+		// $.get('/getCollection?id='+id, function(response){
+		// 	if(typeof response === "string"){
+		// 		// parse the string and send it back to server
+		// 		// imdbResponse.innerHTML = response;
+		// 		// var movieArray = parseHTML(imdbResponse);
+		// 		// post this array to server then to db
+		// 		$.ajax({
+		// 			method: 'POST',
+		// 			url: '/postCollection',
+		// 			data: {
+		// 				collection: movieArray,
+		// 				actorId: id,
+		// 				// actorName : actorName
+		// 			},
+		// 			dataType: 'application/json',
+		// 			success: function(){
+		// 				 // $.get('/getCollection?id='+id, function(response){
+		// 				 // 	var movieArray = response.collection;
+		// 				 // 	console.log(movieArray);
+		// 				 debugger;
+		// 				 	window.actorId = id;
+		// 				 	$.get('/photos?id='+actorId)
+		// 				 	matchup.set().then(function(resp){
+		// 			 			$scope.movieA = resp.data.movieA;
+		// 			 			$scope.movieB = resp.data.movieB;
+		// 				 	})						 // });
+		// 			},
+		// 			error: function(e){
+		// 				window.actorId = id;
+		// 				$.get('/photos?id='+actorId);
+		// 				matchup.set().then(function(resp){
+		// 					$scope.movieA = resp.data.movieA;
+		// 					$scope.movieB = resp.data.movieB;
+		// 				})
+		// 			}
+		// 		})
+		// 	} else {
+		// 		debugger;
+		// 		var movieArray = response.collection;
+		// 		console.log(movieArray);
+		// 		$window.actorId = id;
+		// 		matchup.set().then(function(resp){
+		// 			$scope.movieA = resp.data.movieA;
+		// 			$scope.movieB = resp.data.movieB;
+		// 		})
+		// 	}
+		// })
 	// }
 
 	}
