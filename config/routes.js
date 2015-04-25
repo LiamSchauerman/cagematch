@@ -96,6 +96,24 @@ module.exports = function(app, passport){
 			res.send({collection : collection})
 		})
 	})
+	// app.get('/draw', function(req,res){
+	// 	Movie.update({title: req.query.a}, {$set:{
+	// 		"score" : matchup.winnerScorePost
+	// 	}}, function(err, updated){
+	// 		Movie.update({_id: loser._id}, {$set:{
+	// 			"score" : matchup.loserScorePost
+	// 		}}, function(err, updated){
+	// 			matchup.save(function(err,log){
+	// 				console.log('scored ......')
+	// 				res.json({
+	// 					winnerScore: matchup.winnerScorePost,
+	// 					loserScore: matchup.loserScorePost
+	// 				})
+	// 			})
+	// 		})
+	// 	})
+
+	// })
 	app.get('/getCollection', function(req,res){
 		// this is a lot of async
 		// checks if the query is the imdbId or the actor's name

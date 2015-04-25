@@ -53,9 +53,12 @@ app.controller("RankingsController", function($scope, $window, Movies){
 				x : 0,
 				y : function(d,i){ return 26*i}
 			})
-		rectangles.append('text').text(function(d){return d.title+" "+d.score})
+		rectangles.append('text')
 			.attr({fill : "#000000",color:"white"})
-			.text(function(d){return d.title})
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "20px")
+			.attr("fill", "red")
+			.text(function(d){return d.title+" "+d.score})
 
 	}
 
@@ -101,6 +104,9 @@ app.controller('MatchupController', function($scope, $window, matchup){
 			})
 
 		})
+	}
+	$scope.neither = function(movieA,movieB){
+		$.get('/draw?a='+movieA.title+"&b="+movieB.title)
 	}
 })
 
