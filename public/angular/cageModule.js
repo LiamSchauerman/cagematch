@@ -42,7 +42,7 @@ app.controller("RankingsController", function($scope, $window, Movies){
 			.text(function(d){return d.title})
 			.on('mouseover', function(d){
 			    var nodeSelection = d3.select(this);
-			    console.log(nodeSelection)
+			    console.log(nodeSelection[0][0].__data__.title, nodeSelection[0][0].__data__.score)
 			})
 		rectangles
 			.transition().duration(800)
@@ -106,7 +106,12 @@ app.controller('MatchupController', function($scope, $window, matchup){
 		})
 	}
 	$scope.neither = function(movieA,movieB){
-		$.get('/draw?a='+movieA.title+"&b="+movieB.title)
+		$.get('/draw?a='+movieA.title+"&b="+movieB.title, function(resp){
+			matchup.set().then(function(resp){
+				$scope.movieA = resp.data.movieA;
+				$scope.movieB = resp.data.movieB;
+			})
+		})
 	}
 })
 
