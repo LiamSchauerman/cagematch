@@ -7,20 +7,24 @@
     </head>
 
     <body>
-      <div id='container'>
-      	<div ui-view="matchupView" id="matchupView" class="row">
-      		<div id="movieA"></div>
-	      	<div id="movieB"></div>
+      <div id='container' class="row">
+      	<div class="row">
+	      	<div ui-view="matchupView" id="matchupView" class="col s8">
+	      		<div id="movieA"></div>
+		      	<div id="movieB"></div>
+	      	</div>
+	      	<div ui-view="rankingsView" id="rankingsView" class="col s2">
+	      		
+	      	</div>
       	</div>
       </div>
-      <button id="testButton">Throw him in the CAGE</button>
-      <input id="query" placeholder="Actor's IMDB id">
-      <div ui-view="actorList"></div>
+      <div ui-view="actorList" class="col s3"></div>
 
     </body>
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
     <script type="text/javascript" src="bower_components/materialize/dist/js/materialize.js"></script>
+    <script type="text/javascript" src="bower_components/d3/d3.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>

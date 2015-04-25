@@ -7,12 +7,59 @@ var app = angular.module('cageMatch', ['ui.router'])
 		  url: "/",
 		  views: {
 		    "matchupView": { templateUrl: "angular/views/matchup.html" },
-		    "actorList": { templateUrl: "angular/views/actorList.html" }
+		    "actorList": { templateUrl: "angular/views/actorList.html" },
+			"rankingsView": { templateUrl: "angular/views/rankingsView.html" }
 		  }
 		})
 })
 
+app.controller("RankingsController", function($scope, $window, Movies){
+	console.log('rank controller')
 
+	Movies($window.actorId).then(function(resp){
+		$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});;
+		update($scope.movies)
+	})
+	var timer = setInterval(function(){
+		Movies($window.actorId).then(function(resp){
+			$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});
+			update($scope.movies)
+		})
+	}, 4000)
+	
+	function update(movies){
+		// debugger;
+		var rectangles = d3.select('#rankingsView svg').selectAll('rect').data(movies, function(d){return d.title})
+		rectangles.exit().remove();
+		rectangles.enter().append('rect')
+			.attr({
+				width : function(d){ return 30 * d.score / 120-100},
+				height : 25,
+				fill : "#f39817",
+				x : 0,
+				y : function(d,i){ return 26*i}
+			})
+			.text(function(d){return d.title})
+			.on('mouseover', function(d){
+			    var nodeSelection = d3.select(this);
+			    console.log(nodeSelection)
+			})
+		rectangles
+			.transition().duration(800)
+			.attr({
+				width : function(d){ return 30 * d.score / 120 - 100},
+				height : 25,
+				fill : "#f39817",
+				x : 0,
+				y : function(d,i){ return 26*i}
+			})
+		rectangles.append('text').text(function(d){return d.title+" "+d.score})
+			.attr({fill : "#000000",color:"white"})
+			.text(function(d){return d.title})
+
+	}
+
+})
 app.controller('MatchupController', function($scope, $window, matchup){
 	console.log('matchup controller');
 	if(!$window.actorId){
@@ -64,7 +111,7 @@ app.controller("ActorController", function($scope, $http){
 		method: 'GET',
 		url: '/actorList'
 	}).then(function(resp){
-		$scope.actors = resp.data
+		$scope.actors = resp.data.collection
 	})
 })
 
@@ -76,7 +123,6 @@ app.factory('matchup', ['$http', '$window', function($http, $window){
 		})
 	};
 	function scoreMatchup(winner, loser, actorId){
-		debugger;
 		return $http({
 			method : "POST",
 			url : "/scoreMatchup",
@@ -92,3 +138,14 @@ app.factory('matchup', ['$http', '$window', function($http, $window){
 		score : scoreMatchup
 	}
 }]);
+
+app.factory('Movies', ['$http', '$window', function($http, $window){
+	// return a method to get list of movies
+	return function(id){
+		return $http({
+			method : "GET",
+			url : "/movies?id="+id
+		})
+	}
+}]);
+

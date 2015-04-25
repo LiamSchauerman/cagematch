@@ -76,7 +76,6 @@ module.exports = function(app, passport){
 		  			if (++checked === collection.length) {
 		  			  callback();
 		  			}
-		  			console.log('checked again', checked)
 		  			scrapePhotos(collection, checked, callback)
 		  		}
 		  	})
@@ -85,10 +84,16 @@ module.exports = function(app, passport){
 	app.get('/photos', function(req,res){
 		// needs actorId
 		Movie.find({actorId : req.query.id}, function(err, collection){
-			console.log(collection[9])
 			scrapePhotos(collection, 0, function(){
 				res.status(200).end()
 			})
+		})
+	})
+	app.get('/movies', function(req, res){
+		var id = req.query.id;
+		Movie.find({actorId : id}, function(err, collection){
+			if(err) throw err;
+			res.send({collection : collection})
 		})
 	})
 	app.get('/getCollection', function(req,res){
