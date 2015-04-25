@@ -9,16 +9,20 @@
     <body>
       <div id='container' class="row">
       	<div class="row">
-	      	<div ui-view="matchupView" id="matchupView" class="col s8">
-	      		<div id="movieA"></div>
-		      	<div id="movieB"></div>
-	      	</div>
-	      	<div ui-view="rankingsView" id="rankingsView" class="col s2">
+      		<div class="col s8">
+		      	<div ui-view="matchupView" id="matchupView" >
+		      		<div id="movieA"></div>
+			      	<div id="movieB"></div>
+		      	</div>
+				<div class="row">
+				  <div ui-view="actorList" class="col s3"></div>
+				</div>
+			</div>
+	      	<div ui-view="rankingsView" id="rankingsView" class="col m2">
 	      		
 	      	</div>
       	</div>
       </div>
-      <div ui-view="actorList" class="col s3"></div>
 
     </body>
     <script src="bower_components/jquery/dist/jquery.js"></script>

@@ -15,6 +15,32 @@ module.exports = function(app, passport){
 	    res.header("Access-Control-Allow-Headers",  'Content-Type, X-Requested-With');
 	    next();
 	});
+	app.get('/countMatchups', function(req,res){
+		// Actor.find(function(err, actors){
+
+		// })
+		Actor.find(function(err,actors){
+			var pairs = {};
+			console.log('in count matchups',actors)
+
+			var recurse = function(i, callback){
+				if( i === actors.length){
+					res.send({pairs : pairs})
+				} else {
+					console.log(actors[i])
+					Matchup.find({actorId : actors[i].imdbId}, function(err, matchups){
+						console.log(matchups.length)
+						// recurse
+						pairs[actors[i].imdbId] = matchups.length
+						console.log('recursing', i)
+						recurse(i+1)
+					})
+				}
+			}
+			recurse(0)
+
+		})
+	})
 	app.get('/setMatchup', function(req, res, next){
 		// get two movies and return their attributes
 		Movie.find({actorId : req.query.id}, function(err, results){
@@ -37,10 +63,9 @@ module.exports = function(app, passport){
 	})
 
 	app.get('/actorList', function(req,res){
-		Actor.find(function(err,coll){
+		Actor.find(function(err,collection){
 			if(err) throw err
-			console.log(coll)
-			res.send(coll)
+			res.send({collection : collection})
 		})
 	})
 	function scrapePhotos(collection, checked, callback) {
@@ -278,37 +303,6 @@ module.exports = function(app, passport){
 										})
 								    }
 								})
-								// request('http://www.imdb.com/name/'+query, function (error, response, body) {
-								// 	if (!error && response.statusCode == 200) {
-								// 		// parse actors imdb page for a collection of movies
-								// 		var $ = cheerio.load(body);
-								// 		var children = $(".filmo-category-section .filmo-row b a");
-								// 		console.log('targeted all children', children.length)
-								// 		var data;
-								// 		var movieCollection = [];
-								// 		children.each(function(i, elem){
-								// 			data = {};
-								// 			data.imdbId = elem.attribs.href;
-								// 			data.title = elem.children[0].data;
-								// 			data.actorId = query;
-								// 			var startIndex = data.imdbId.indexOf('tt')
-								// 			for( var i = startIndex + 2; i < data.imdbId.length; i++ ){
-								// 				if( data.imdbId[i] === "/" ){
-								// 					var endIndex = i;
-								// 					var hrefParsed = data.imdbId.substring(startIndex, endIndex)
-								// 					break
-								// 				}
-								// 			}
-								// 			data.imdbId = hrefParsed
-								// 			movieCollection.push(data)
-								// 		})
-								// 		// movieCollection is our array
-								// 		console.log("about to insert collection")
-								// 		insertCollection(movieCollection, newActor.actorId, function(){
-								// 			res.send(query);
-								// 		})
-								//     }
-								// })
 							})
 					    }
 					})					
@@ -374,19 +368,6 @@ module.exports = function(app, passport){
 	    });
 	  }
 	}
-	// app.post('/postCollection', function(req,res){
-	// 	// make and save actor
-	// 	// req should have actorId and a parsed collection of movie objects
-	// 	var actor = new Actor();
-	// 	actor.imdbId = req.body.actorId;
-	// 	actor.save(function(err,log){
-	// 		// create new movie objects for each in array
-	// 		console.log("about to insert collection")
-	// 		insertCollection(req.body.collection, req.body.actorId, function(){
-	// 			res.status(200).end();
-	// 		})
-	// 	})
-	// });
 	app.post('/scoreMatchup', function(req,res){
 		// calculate score change
 		// find mongoose model for winner and loser

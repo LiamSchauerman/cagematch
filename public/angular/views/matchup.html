@@ -1,14 +1,14 @@
 <div id="matchup" ng-controller="MatchupController">
+	<button ng-click="queryActor()" id="testButton">match him up in the CAGE</button>
+	<input ng-model="newId" id="query" placeholder="search">
+	<button ng-click="neither(movieA, movieB)">Both of these are awful!</button>
 	<div>
 		<div class="card movie col s5" id="movieA" ng-click="newmatchup(movieA)">
-			{{movieA.title}}<hr/>{{movieA.score}}<hr/><img ng-show="movieA.imgUrl" src={{movieA.imgUrl}} />
+			{{movieA.title}}<hr/>{{movieA.score | number : 0}}<hr/><img ng-show="movieA.imgUrl" src={{movieA.imgUrl}} />
 		</div>
 		<div class="card movie col s5" id="movieB" ng-click="newmatchup(movieB)">
-			{{movieB.title}}<hr/>{{movieB.score}}<hr /><img ng-show="movieB.imgUrl" src={{movieB.imgUrl}} />
+			{{movieB.title}}<hr/>{{movieB.score | number : 0}}<hr /><img ng-show="movieB.imgUrl" src={{movieB.imgUrl}} />
 		</div>
 	</div>
-	<button ng-click="neither(movieA, movieB)">Both of these are awful!</button>
-	<button ng-click="queryActor()" id="testButton">match him up in the CAGE</button>
-	<input ng-model="newId" id="query" placeholder="Actor's IMDB id">
 
 </div>

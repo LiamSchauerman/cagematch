@@ -17,7 +17,7 @@ app.controller("RankingsController", function($scope, $window, Movies){
 	console.log('rank controller')
 
 	Movies($window.actorId).then(function(resp){
-		$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});;
+		$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});
 		update($scope.movies)
 	})
 	var timer = setInterval(function(){
@@ -28,37 +28,47 @@ app.controller("RankingsController", function($scope, $window, Movies){
 	}, 4000)
 	
 	function update(movies){
-		// debugger;
+		var height = 10;
 		var rectangles = d3.select('#rankingsView svg').selectAll('rect').data(movies, function(d){return d.title})
 		rectangles.exit().remove();
 		rectangles.enter().append('rect')
 			.attr({
+				fill: "#09c3df"
+			})
+			.classed('tooltipped', true)
+			.transition().duration(800)
+			.attr({
 				width : function(d){ return 30 * d.score / 120-100},
-				height : 25,
+				height : height,
 				fill : "#f39817",
 				x : 0,
-				y : function(d,i){ return 26*i}
-			})
-			.text(function(d){return d.title})
+				y : function(d,i){ return 26*i},
+				"data-position": "left",
+				"data-delay" : "10",
+			}).attr("data-tooltip", function(d){return d.title})
+		rectangles
 			.on('mouseover', function(d){
 			    var nodeSelection = d3.select(this);
 			    console.log(nodeSelection[0][0].__data__.title, nodeSelection[0][0].__data__.score)
+			    $(this).css('fill', "#09c3df");
+			})
+			.on('mouseout', function(d){
+			    $(this).css('fill', "#f39817");
 			})
 		rectangles
 			.transition().duration(800)
 			.attr({
 				width : function(d){ return 30 * d.score / 120 - 100},
-				height : 25,
+				height : height,
 				fill : "#f39817",
 				x : 0,
-				y : function(d,i){ return 26*i}
+				y : function(d,i){ return 1.1*height*i},
+				"data-position": "left",
+				"data-delay" : "10",
+			}).attr("data-tooltip", function(d){
+				return d.title+"   "+Math.floor(d.score)
 			})
-		rectangles.append('text')
-			.attr({fill : "#000000",color:"white"})
-			.attr("font-family", "sans-serif")
-			.attr("font-size", "20px")
-			.attr("fill", "red")
-			.text(function(d){return d.title+" "+d.score})
+		$('.tooltipped').tooltip({delay: 50});
 
 	}
 
@@ -115,15 +125,27 @@ app.controller('MatchupController', function($scope, $window, matchup){
 	}
 })
 
-app.controller("ActorController", function($scope, $http){
+app.controller("ActorController", function($scope, Actors, $state, $window, $http, matchup){
 	console.log('actor controller');
-
+	$scope.setActor = function(obj){
+		$window.actorId = obj.imdbId;
+		$state.reload();
+	};
 	$http({
 		method: 'GET',
 		url: '/actorList'
 	}).then(function(resp){
 		$scope.actors = resp.data.collection
+		getAllTopMovies(0)
 	})
+	function getAllTopMovies(){
+		Actors.numberOfVotes().then(function(resp){
+			debugger;
+			for(var i=0; i< $scope.actors.length; i++){
+				$scope.actors[i].matchupCount = resp.data.pairs[$scope.actors[i].imdbId]
+			}
+		})
+	}
 })
 
 app.factory('matchup', ['$http', '$window', function($http, $window){
@@ -159,4 +181,18 @@ app.factory('Movies', ['$http', '$window', function($http, $window){
 		})
 	}
 }]);
+
+app.factory('Actors', ['$http', '$window', function($http, $window){
+	// return a set of key value pairs
+	// [actorId : topMovie]
+	function numberOfVotes(id){
+		return $http({
+			method : "GET",
+			url : "/countMatchups"
+		})
+	}
+	return {
+		numberOfVotes : numberOfVotes
+	}
+}])
 

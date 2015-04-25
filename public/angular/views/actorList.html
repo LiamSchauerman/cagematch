@@ -1,7 +1,8 @@
 <div ng-controller="ActorController">
-	<ul class="collection">
-		<li ng-repeat="actor in actors" class="collection-item">
-			{{actor.name}}
+	<ul class="collection actor">
+		<li ng-repeat="actor in actors" ng-click="setActor(actor)" class="collection-item">
+			<span class="title">{{actor.name}}</span>
+			<p ng-show="actor.matchupCount">Matched up {{actor.matchupCount}} times</p>
 		</li>
 	</ul>
 </div>
