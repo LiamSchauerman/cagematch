@@ -20,14 +20,14 @@ app.controller('MatchupController', function($scope, $window, matchup){
 	}
 	$scope.newId = "";
 
-	// matchup.set().then(function(resp){
-	// 	if(!$scope.movieA || $scope.movieA === ""){
-	// 		$scope.movieA = resp.data.movieA;
-	// 		$scope.movieB = resp.data.movieB;
-	// 	}
-	// })
+	matchup.set().then(function(resp){
+		if(!$scope.movieA || $scope.movieA === ""){
+			$scope.movieA = resp.data.movieA;
+			$scope.movieB = resp.data.movieB;
+		}
+	})
 	$scope.newmatchup = function(clicked){
-		if(clicked.title === $scope.movieA.title){
+		if($scope.movieA && clicked.title === $scope.movieA.title){
 			var winner = $scope.movieA;
 			var loser = $scope.movieB;
 		} else {
@@ -62,7 +62,7 @@ app.controller("ActorController", function($scope, $http){
 
 	$http({
 		method: 'GET',
-		url: 'actorList'
+		url: '/actorList'
 	}).then(function(resp){
 		$scope.actors = resp.data
 	})
@@ -76,6 +76,7 @@ app.factory('matchup', ['$http', '$window', function($http, $window){
 		})
 	};
 	function scoreMatchup(winner, loser, actorId){
+		debugger;
 		return $http({
 			method : "POST",
 			url : "/scoreMatchup",
