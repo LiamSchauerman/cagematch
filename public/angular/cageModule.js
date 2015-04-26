@@ -13,8 +13,11 @@ var app = angular.module('cageMatch', ['ui.router'])
 		})
 })
 
-app.controller("RankingsController", function($scope, $window, Movies){
+app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 	console.log('rank controller')
+	Actors.getName($window.actorId).then(function(resp){
+		$scope.currentActor = resp.data.name
+	})
 
 	Movies($window.actorId).then(function(resp){
 		$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});
@@ -79,9 +82,6 @@ app.controller('MatchupController', function($scope, $window, matchup, Actors){
 	if(!$window.actorId){
 		$window.actorId = "nm0000115"; // nic cage
 	}
-	Actors.getName($window.actorId).then(function(resp){
-		$scope.currentActor = resp.data.name
-	})
 	$scope.newId = "";
 
 	matchup.set().then(function(resp){
@@ -144,7 +144,6 @@ app.controller("ActorController", function($scope, Actors, $state, $window, $htt
 	})
 	function getAllTopMovies(){
 		Actors.numberOfVotes().then(function(resp){
-			debugger;
 			for(var i=0; i< $scope.actors.length; i++){
 				$scope.actors[i].matchupCount = resp.data.pairs[$scope.actors[i].imdbId]
 			}

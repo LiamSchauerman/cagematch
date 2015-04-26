@@ -1,9 +1,9 @@
 body {
 	opacity : 1;
 }
-.entryView {
-	width: 300px;
-}
+/*.entryView {*/
+	/*width: 300px;*/
+/*}*/
 .movie {
 	border: 1px solid black;
 	width: 400px;
