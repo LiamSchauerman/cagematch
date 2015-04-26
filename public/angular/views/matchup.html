@@ -8,7 +8,9 @@
 			{{movieB.title}}<hr/>{{movieB.score | number : 0}}<hr /><img ng-show="movieB.imgUrl" src={{movieB.imgUrl}} />
 		</div>
 	</div>
-	<input ng-model="newId" id="query" placeholder="search">
-	<button ng-click="queryActor()" id="testButton">Throw him in the CAGE</button>
+	<div class="actorQuery">
+		<input ng-model="newId" id="query" placeholder="search">
+		<button ng-click="queryActor()" id="testButton">Throw him in the CAGE</button>
+	</div>
 
 </div>

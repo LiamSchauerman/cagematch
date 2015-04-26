@@ -31,7 +31,7 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 	}, 4000)
 	
 	function update(movies){
-		var height = 10;
+		var height = 20;
 		var rectangles = d3.select('#rankingsView svg').selectAll('rect').data(movies, function(d){return d.title})
 		rectangles.exit().remove();
 		rectangles.enter().append('rect')
@@ -139,14 +139,22 @@ app.controller("ActorController", function($scope, Actors, $state, $window, $htt
 		method: 'GET',
 		url: '/actorList'
 	}).then(function(resp){
-		$scope.actors = resp.data.collection
-		getAllTopMovies(0)
+		$scope.actors = resp.data.collection.sort(function(a,b){
+			return b.matchupCount - a.matchupCount
+		})
+		getAllTopMovies(function(){
+			$scope.actors.sort(function(a,b){
+				return b.matchupCount - a.matchupCount
+			})
+			
+		})
 	})
-	function getAllTopMovies(){
+	function getAllTopMovies(cb){
 		Actors.numberOfVotes().then(function(resp){
 			for(var i=0; i< $scope.actors.length; i++){
 				$scope.actors[i].matchupCount = resp.data.pairs[$scope.actors[i].imdbId]
 			}
+			cb();
 		})
 	}
 })
