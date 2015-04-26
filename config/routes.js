@@ -41,6 +41,11 @@ module.exports = function(app, passport){
 
 		})
 	})
+	app.get('/actor', function(req,res){
+		Actor.findOne({imdbId : req.query.id}, function(err, actor){
+			res.send({name : actor.name})
+		})
+	})
 	app.get('/setMatchup', function(req, res, next){
 		// get two movies and return their attributes
 		Movie.find({actorId : req.query.id}, function(err, results){

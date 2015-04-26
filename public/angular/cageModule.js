@@ -33,7 +33,8 @@ app.controller("RankingsController", function($scope, $window, Movies){
 		rectangles.exit().remove();
 		rectangles.enter().append('rect')
 			.attr({
-				fill: "#09c3df"
+				fill: "#f39817",
+				width: 0
 			})
 			.classed('tooltipped', true)
 			.transition().duration(800)
@@ -73,11 +74,14 @@ app.controller("RankingsController", function($scope, $window, Movies){
 	}
 
 })
-app.controller('MatchupController', function($scope, $window, matchup){
+app.controller('MatchupController', function($scope, $window, matchup, Actors){
 	console.log('matchup controller');
 	if(!$window.actorId){
-		$window.actorId = "nm0000115";
+		$window.actorId = "nm0000115"; // nic cage
 	}
+	Actors.getName($window.actorId).then(function(resp){
+		$scope.currentActor = resp.data.name
+	})
 	$scope.newId = "";
 
 	matchup.set().then(function(resp){
@@ -191,8 +195,15 @@ app.factory('Actors', ['$http', '$window', function($http, $window){
 			url : "/countMatchups"
 		})
 	}
+	function getName(id){
+		return $http({
+			method : "GET",
+			url : "/actor?id="+id
+		})
+	}
 	return {
-		numberOfVotes : numberOfVotes
+		numberOfVotes : numberOfVotes,
+		getName : getName
 	}
 }])
 

@@ -1,3 +1,6 @@
+body {
+	opacity : 1;
+}
 .entryView {
 	width: 300px;
 }
@@ -20,9 +23,6 @@ img {
 #container {
 	padding-top: 20px;
 }
-/*
-.ranking {
-	height : 30px;
-	padding-top : 1px;
-	border : 1px solid green;
-}*/
+.hidden {
+	opacity : 0;
+}
