@@ -39,7 +39,6 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 				fill: "#f39817",
 				width: 0
 			})
-			.classed('tooltipped', true)
 			.transition().duration(800)
 			.attr({
 				width : function(d){ return 30 * d.score / 120-100},
@@ -47,9 +46,7 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 				fill : "#f39817",
 				x : 0,
 				y : function(d,i){ return 26*i},
-				"data-position": "left",
-				"data-delay" : "10",
-			}).attr("data-tooltip", function(d){return d.title})
+			})
 		rectangles
 			.on('mouseover', function(d){
 			    var nodeSelection = d3.select(this);
@@ -67,10 +64,6 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 				fill : "#f39817",
 				x : 0,
 				y : function(d,i){ return 1.1*height*i},
-				"data-position": "left",
-				"data-delay" : "10",
-			}).attr("data-tooltip", function(d){
-				return d.title+"   "+Math.floor(d.score)
 			})
 		$('.tooltipped').tooltip({delay: 50});
 
