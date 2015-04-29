@@ -1,8 +1,17 @@
 <div ng-controller="ActorController">
+	<div class="actorQuery">
+
+	</div>
 	<ul class="collection actor striped">
 		<li ng-repeat="actor in actors" ng-click="setActor(actor)" class="collection-item" ng-class-odd="'orange lighten-4'" ng-class-even="'orange lighten-5'">
 			<h5 class="title">{{actor.name}}</h5>
 			<p ng-show="actor.matchupCount">{{actor.matchupCount}} matchups</p>
+		</li>
+		<li>
+			<button class="waves-effect waves-light btn" ng-click="queryActor()" id="testButton">Throw him in the CAGE<i class="mdi-content-send right"></i></button>
+			<div class="input-field">
+			  <input ng-model="newId" placeholder="search" id="query" type="text">
+			</div>
 		</li>
 	</ul>
 </div>

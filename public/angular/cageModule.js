@@ -98,20 +98,7 @@ app.controller('MatchupController', function($scope, $window, matchup, Actors){
 			})
 		})
 	}
-	$scope.queryActor = function(){
-		// set windowActorId
-		var id = $scope.newId
 
-		$.get('/getCollection?id='+id, function(actorId){
-			$window.actorId = actorId;
-			$.get('/photos?id='+actorId)
-			matchup.set().then(function(resp){
-				$scope.movieA = resp.data.movieA;
-				$scope.movieB = resp.data.movieB;
-			})
-
-		})
-	}
 	$scope.neither = function(movieA,movieB){
 		$.get('/draw?a='+movieA.title+"&b="+movieB.title, function(resp){
 			matchup.set().then(function(resp){
@@ -125,7 +112,11 @@ app.controller('MatchupController', function($scope, $window, matchup, Actors){
 app.controller("ActorController", function($scope, Actors, $state, $window, $http, matchup){
 	console.log('actor controller');
 	$scope.setActor = function(obj){
-		$window.actorId = obj.imdbId;
+		if(typeof obj === "string"){
+			$window.actorId = obj
+		} else {
+			$window.actorId = obj.imdbId;
+		}
 		$state.reload();
 	};
 	$http({
@@ -142,6 +133,23 @@ app.controller("ActorController", function($scope, Actors, $state, $window, $htt
 			
 		})
 	})
+	$scope.queryActor = function(){
+		// set windowActorId
+		var id = $scope.newId
+
+		$.get('/getCollection?id='+id, function(actorId){
+			$window.actorId = actorId;
+			$.get('/photos?id='+actorId);
+			$scope.setActor(actorId)
+			// set loading animation
+
+			// matchup.set().then(function(resp){
+			// 	$scope.movieA = resp.data.movieA;
+			// 	$scope.movieB = resp.data.movieB;
+			// })
+
+		})
+	}
 	function getAllTopMovies(cb){
 		Actors.numberOfVotes().then(function(resp){
 			for(var i=0; i< $scope.actors.length; i++){

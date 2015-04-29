@@ -1,5 +1,4 @@
 <div id="matchup" ng-controller="MatchupController">
-	<button ng-click="neither(movieA, movieB)">Both of these are awful!</button>
 	<div class="matchupContainer">
 		<div class="card movie col s5" id="movieA" ng-click="newmatchup(movieA)">
 			{{movieA.title}}<hr/>{{movieA.score | number : 0}}<hr/><img ng-show="movieA.imgUrl" src={{movieA.imgUrl}} />
@@ -8,9 +7,8 @@
 			{{movieB.title}}<hr/>{{movieB.score | number : 0}}<hr /><img ng-show="movieB.imgUrl" src={{movieB.imgUrl}} />
 		</div>
 	</div>
-	<div class="actorQuery">
-		<input ng-model="newId" id="query" placeholder="search">
-		<button ng-click="queryActor()" id="testButton">Throw him in the CAGE</button>
+	<div>
+		<button class="valign waves-effect waves-light btn" ng-click="neither(movieA, movieB)">Both of these are awful!</button>
 	</div>
 
 </div>
