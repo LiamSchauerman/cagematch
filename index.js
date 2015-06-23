@@ -6,9 +6,8 @@ var http = require("http"),
 	express = require("express"),
 	bodyParser = require("body-parser"),
 	parseurl = require("parseurl")
-	bcrypt = require("bcrypt")
 	mongoose = require("mongoose"),
-	passport = require("passport"),
+	//passport = require("passport"),
 	session = require('express-session'),
 	cookieParser = require('cookie-parser'),
 	request = require('request'),
@@ -34,12 +33,12 @@ db.once('open', function () {
 });
 
 
-require('./config/passport.js')(passport);
+//require('./config/passport.js')(passport);
 
 
 app.use(session({ secret: 'mysecret' }));
-app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.initialize());
+//app.use(passport.session());
 
 // logging all requests to console
 app.use(function(req,res,next){
@@ -47,7 +46,7 @@ app.use(function(req,res,next){
 	console.log(req.user ? req.user : "no user");
 	next();
 });
-require("./config/routes.js")(app, passport)
+require("./config/routes.js")(app);
 
 app.listen(port, function(){
 	console.log('Listening on port ' + port);
