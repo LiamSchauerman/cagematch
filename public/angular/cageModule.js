@@ -1,45 +1,40 @@
 console.log('cageModule.js')
 var app = angular.module('cageMatch', ['ui.router'])
-.config(function($locationProvider, $stateProvider, $urlRouterProvider) {
-	$locationProvider.html5Mode(true);
-	$stateProvider
-		.state('home', {
-		  url: "/",
-		  views: {
-		    "matchupView": { templateUrl: "angular/views/matchup.html" },
-		    "actorList": { templateUrl: "angular/views/actorList.html" },
-			"rankingsView": { templateUrl: "angular/views/rankingsView.html" }
-		  }
-		})
-})
+	.config(function($locationProvider, $stateProvider, $urlRouterProvider) {
+		$locationProvider.html5Mode(true);
+		$stateProvider
+			.state('home', {
+				url: "/",
+				views: {
+					"matchupView": { templateUrl: "angular/views/matchup.html" },
+					"actorList": { templateUrl: "angular/views/actorList.html" },
+					"rankingsView": { templateUrl: "angular/views/rankingsView.html" }
+				}
+			})
+	})
 
 app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 	console.log('rank controller')
 	Actors.getName($window.actorId).then(function(resp){
 		$scope.currentActor = resp.data.name
-	});
+	})
 
 	Movies($window.actorId).then(function(resp){
 		$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});
-		render($scope.movies)
-	});
+		update($scope.movies)
+	})
 	var timer = setInterval(function(){
 		Movies($window.actorId).then(function(resp){
 			$scope.movies = resp.data.collection.sort(function(a,b){return b.score-a.score});
-			render($scope.movies)
+			update($scope.movies)
 		})
-	}, 4000);
-	
-	function render(movies){
-		var height = 25;
-		var svg = d3.select("#rankingsView svg")
-		var rectangles = svg.selectAll('g').data(movies, function(d){return d.title});
+	}, 4000)
+
+	function update(movies){
+		var height = 20;
+		var rectangles = d3.select('#rankingsView svg').selectAll('rect').data(movies, function(d){return d.title})
 		rectangles.exit().remove();
-		var group = rectangles.enter().append('g')
-			.attr({
-				transform : function(d, i) { return "translate(0," + i * 1.2 * height + ")"}
-			});
-		group.append('rect')
+		rectangles.enter().append('rect')
 			.attr({
 				fill: "#f39817",
 				width: 0
@@ -49,76 +44,29 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 				width : function(d){ return 30 * d.score / 120-100},
 				height : height,
 				fill : "#f39817",
+				x : 0,
+				y : function(d,i){ return 26*i},
 			})
-		group.append('text')
-			.attr({
-				fill: "#000000",
-				x : 5,
-				y : 20
-			})
-			.text(function(d){return d.title})
-		rectangles.transition().duration(800)
-			.attr({
-				translate : function(d, i) { return "translate(0," + i * 1.2 * height + ")"},
-				width : function(d){ return 30 * d.score / 120-100}
-
-			})
-	}
-		// var rectangles = d3.select('#rankingsView svg').selectAll('rect').data(movies, function(d){return d.title})
-
-
-/*		gs.exit().remove();
-		gs.enter().append('g').attr({
-			x : 0,
-			y : function(d,i){ return 26*i},
-		})
-		gs.enter().append('rect')
-			.attr({
-				fill: "#f39817",
-				width: 0
-			})
-			.transition().duration(800)
-			.attr({
-				width : function(d){ return 30 * d.score / 120-100},
-				height : height,
-				fill : "#f39817",
-			})
-		gs.enter().append('text')
-			.attr({
-				fill: "#09c3df"
-			})
-		gs
+		rectangles
 			.on('mouseover', function(d){
-			    var nodeSelection = d3.select(this);
-			    console.log(nodeSelection[0][0].__data__.title, nodeSelection[0][0].__data__.score)
-			    $(this).css('fill', "#09c3df");
+				var nodeSelection = d3.select(this);
+				console.log(nodeSelection[0][0].__data__.title, nodeSelection[0][0].__data__.score)
+				$(this).css('fill', "#09c3df");
 			})
 			.on('mouseout', function(d){
-			    $(this).css('fill', "#f39817");
+				$(this).css('fill', "#f39817");
 			})
-
-			*/
-
-
-
-		// rectangles
-		// 	.transition().duration(800)
-		// 	.attr({
-		// 		width : function(d){ return 30 * d.score / 120 - 100},
-		// 		height : height,
-		// 		fill : "#f39817",
-		// 		x : 0,
-		// 		y : function(d,i){ return 1.1*height*i},
-		// 	})
-	function update(movies){
-		var height = 25;
-		var svg = d3.select("#rankingsView svg")
-		var bars = d3.selectAll('g').data(movies, function(d){return d.title})
-		bars.exit().remove();
-		bars.transition().duration(800)
+		rectangles
+			.transition().duration(800)
 			.attr({
-				translate : function(d, i) { return "translate(0," + i * 1.2 * height + ")"}
+				width : function(d){ return 30 * d.score / 120 - 100},
+				height : height,
+				fill : "#f39817",
+				x : 0,
+				y : function(d,i){ return 1.1*height*i},
 			})
+		$('.tooltipped').tooltip({delay: 50});
+
 	}
 
 })
@@ -182,7 +130,7 @@ app.controller("ActorController", function($scope, Actors, $state, $window, $htt
 			$scope.actors.sort(function(a,b){
 				return b.matchupCount - a.matchupCount
 			})
-			
+
 		})
 	})
 	$scope.queryActor = function(){
@@ -266,4 +214,3 @@ app.factory('Actors', ['$http', '$window', function($http, $window){
 		getName : getName
 	}
 }])
-

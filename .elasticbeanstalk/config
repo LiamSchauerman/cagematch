@@ -1,0 +1,26 @@
+[global]
+ApplicationName=cageTest
+AwsCredentialFile=/Users/liam/.elasticbeanstalk/aws_credential_file
+DevToolsEndpoint=git.elasticbeanstalk.us-west-2.amazonaws.com
+EnvironmentName=cageTest-dev
+EnvironmentTier=WebServer::Standard::1.0
+EnvironmentType=SingleInstance
+InstanceProfileName=aws-elasticbeanstalk-ec2-role
+OptionSettingFile=/Users/liam/Projects/Cagematch/.elasticbeanstalk/optionsettings.cageTest-dev
+RdsEnabled=No
+Region=us-west-2
+ServiceEndpoint=https://elasticbeanstalk.us-west-2.amazonaws.com
+SolutionStack=64bit Amazon Linux 2015.03 v1.4.3 running Docker 1.6.2
+
+[branches]
+docker=cageTest-docker-env
+
+[branch:docker]
+ApplicationVersionName=Sample Application
+EnvironmentName=cageTest-docker-env
+EnvironmentTier=WebServer::Standard::1.0
+EnvironmentType=SingleInstance
+InstanceProfileName=aws-elasticbeanstalk-ec2-role
+OptionSettingFile=/Users/liam/Projects/Cagematch/.elasticbeanstalk/optionsettings.cageTest-docker-env
+RdsEnabled=No
+
