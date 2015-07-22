@@ -1,5 +1,5 @@
-var mongoose = require("mongoose"),
-	bcrypt = require("bcrypt");
+var mongoose = require("mongoose");
+	//bcrypt = require("bcrypt");
 
 var userSchema = new mongoose.Schema({
 	local : {
@@ -23,11 +23,11 @@ var userSchema = new mongoose.Schema({
 
 // making a hash from a password
 userSchema.methods.makeHash = function(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+    //return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
 // checking password
 userSchema.methods.checkPassword = function(password) {
-    return bcrypt.compareSync(password, this.local.password);
+    //return bcrypt.compareSync(password, this.local.password);
 };
 module.exports = mongoose.model('User', userSchema);
