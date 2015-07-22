@@ -1,17 +1,17 @@
 console.log('cageModule.js')
 var app = angular.module('cageMatch', ['ui.router'])
-.config(function($locationProvider, $stateProvider, $urlRouterProvider) {
-	$locationProvider.html5Mode(true);
-	$stateProvider
-		.state('home', {
-		  url: "/",
-		  views: {
-		    "matchupView": { templateUrl: "angular/views/matchup.html" },
-		    "actorList": { templateUrl: "angular/views/actorList.html" },
-			"rankingsView": { templateUrl: "angular/views/rankingsView.html" }
-		  }
-		})
-})
+	.config(function($locationProvider, $stateProvider, $urlRouterProvider) {
+		$locationProvider.html5Mode(true);
+		$stateProvider
+			.state('home', {
+				url: "/",
+				views: {
+					"matchupView": { templateUrl: "angular/views/matchup.html" },
+					"actorList": { templateUrl: "angular/views/actorList.html" },
+					"rankingsView": { templateUrl: "angular/views/rankingsView.html" }
+				}
+			})
+	})
 
 app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 	console.log('rank controller')
@@ -29,7 +29,7 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 			update($scope.movies)
 		})
 	}, 4000)
-	
+
 	function update(movies){
 		var height = 20;
 		var rectangles = d3.select('#rankingsView svg').selectAll('rect').data(movies, function(d){return d.title})
@@ -49,12 +49,12 @@ app.controller("RankingsController", function(Actors, $scope, $window, Movies){
 			})
 		rectangles
 			.on('mouseover', function(d){
-			    var nodeSelection = d3.select(this);
-			    console.log(nodeSelection[0][0].__data__.title, nodeSelection[0][0].__data__.score)
-			    $(this).css('fill', "#09c3df");
+				var nodeSelection = d3.select(this);
+				console.log(nodeSelection[0][0].__data__.title, nodeSelection[0][0].__data__.score)
+				$(this).css('fill', "#09c3df");
 			})
 			.on('mouseout', function(d){
-			    $(this).css('fill', "#f39817");
+				$(this).css('fill', "#f39817");
 			})
 		rectangles
 			.transition().duration(800)
@@ -130,7 +130,7 @@ app.controller("ActorController", function($scope, Actors, $state, $window, $htt
 			$scope.actors.sort(function(a,b){
 				return b.matchupCount - a.matchupCount
 			})
-			
+
 		})
 	})
 	$scope.queryActor = function(){
@@ -214,4 +214,3 @@ app.factory('Actors', ['$http', '$window', function($http, $window){
 		getName : getName
 	}
 }])
-
